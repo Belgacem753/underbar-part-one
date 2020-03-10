@@ -1,4 +1,4 @@
-(function() {
+(function () {
   'use strict';
 
   window._ = {};
@@ -6,9 +6,9 @@
   // Returns whatever value is passed as the argument. This function doesn't
   // seem very useful, but remember it--if a function needs to provide an
   // iterator when the user does not pass one in, this will be handy.
-  _.identity = function(val) {
+  _.identity = function (val) {
     /* START SOLUTION */
-
+    return val;
     /* END SOLUTION */
   };
 
@@ -25,17 +25,56 @@
 
   // Return an array of the first n elements of an array. If n is undefined,
   // return just the first element.
-  _.first = function(array, n) {
+  _.first = function (array, n) {
     /* START SOLUTION */
+    if (typeof array === "object" && !Array.isArray(array)) {
+      if (n === undefined) return undefined;
+      else return [];
+    }
+    if (!Array.isArray(array)) {
+      return [];
+    }
 
+    if (n === undefined) {
+      return array[0]
+    }
+
+    if (typeof n !== 'number') {
+      return [];
+    }
+
+
+
+    return array.slice(0, n)
     /* END SOLUTION */
   };
 
   // Like first, but for the last elements. If n is undefined, return just the
   // last element.
-  _.last = function(array, n) {
+  _.last = function (array, n) {
     /* START SOLUTION */
+    var len = array.length;
+    if (typeof array === "object" && !Array.isArray(array)) {
+      if (n === undefined) return undefined;
+      else return [];
+    }
+    if (!Array.isArray(array)) {
+      return [];
+    }
 
+    if (n === undefined) {
+      return array[len - 1];
+    }
+
+    if (typeof n !== 'number') {
+      return [];
+    }
+
+
+    if (n > len) {
+      return array;
+    }
+    return array.slice(len - n)
     /* END SOLUTION */
   };
 
@@ -44,36 +83,121 @@
   //
   // Note: _.each does not have a return value, but rather simply runs the
   // iterator function over each item in the input collection.
-  _.each = function(collection, iterator) {
+  _.each = function (collection, iterator) {
     /* START SOLUTION */
-
+    if (Array.isArray(collection)) {
+      for (var i = 0; i < collection.length; i++) {
+        iterator(collection[i], i, collection);
+      }
+    } else {
+      for (var key in collection) {
+        iterator(collection[key], key, collection);
+      }
+    }
     /* END SOLUTION */
   };
 
   // Returns the index at which value can be found in the array, or -1 if value
   // is not present in the array.
-  _.indexOf = function(array, target){
+  _.indexOf = function (array, target, st, isSorted) {
     /* START SOLUTION */
+    if (!Array.isArray(array)) {
+      return -1;
+    }
+    if (!isSorted) {
+      var i;
+      if (st === undefined) i = 0
+      else i = st;
+      for (; i < array.length; i++) {
+        if (array[i] === target) {
+          return i;
+        }
+      }
+    } else {
 
+    }
+
+    return -1;
     /* END SOLUTION */
   };
 
   // Return all elements of an array that pass a truth test.
-  _.filter = function(collection, test) {
+  _.filter = function (collection, test) {
+
+    function each(collection, iterator) {
+      /* START SOLUTION */
+      if (Array.isArray(collection)) {
+        for (var i = 0; i < collection.length; i++) {
+          iterator(collection[i], i, collection);
+        }
+      } else {
+        for (var key in collection) {
+          iterator(collection[key], key, collection);
+        }
+      }
+      /* END SOLUTION */
+    }
+
     /* START SOLUTION */
+    var arr = [], obj = {};
+    if (Array.isArray(collection)) {
+      each(collection, function (e, i) {
+        if (test(e)) {
+          arr.push(e);
+        }
+      })
+      return arr
+    } else {
+      each(collection, function (value, key) {
+        if (test(value)) {
+          obj[key] = value;
+        }
+      })
+      return obj
+    }
 
     /* END SOLUTION */
   };
 
   // Return all elements of an array that don't pass a truth test.
-  _.reject = function(collection, test) {
+  _.reject = function (collection, test) {
     /* START SOLUTION */
+    function each(collection, iterator) {
+      /* START SOLUTION */
+      if (Array.isArray(collection)) {
+        for (var i = 0; i < collection.length; i++) {
+          iterator(collection[i], i, collection);
+        }
+      } else {
+        for (var key in collection) {
+          iterator(collection[key], key, collection);
+        }
+      }
+      /* END SOLUTION */
+    }
 
+    /* START SOLUTION */
+    var arr = [], obj = {};
+    if (Array.isArray(collection)) {
+      each(collection, function (e, i) {
+        if (!test(e)) {
+          arr.push(e);
+        }
+      })
+      return arr
+    } else {
+      each(collection, function (value, key) {
+        if (!test(value)) {
+          obj[key] = value;
+        }
+      })
+      return obj
+    }
     /* END SOLUTION */
   };
 
   // Produce a duplicate-free version of the array.
-  _.uniq = function(array, isSorted, iterator) {
+  _.uniq = function (array, isSorted, iterator) {
     /* START SOLUTION */
 
     /* END SOLUTION */
@@ -81,10 +205,34 @@
 
 
   // Return the results of applying an iterator to each element.
-  _.map = function(collection, iterator) {
+  _.map = function (collection, iterator) {
     /* START SOLUTION */
+    function each(collection, func) {
+      /* START SOLUTION */
+      if (Array.isArray(collection)) {
+        for (var i = 0; i < collection.length; i++) {
+          func(collection[i], i, collection);
+        }
+      } else {
+        for (var key in collection) {
+          func(collection[key], key, collection);
+        }
+      }
+    }
 
-    /* END SOLUTION */
+    var arr = []
+    if (Array.isArray(collection)) {
+      each(collection, function (e, i) {
+        arr.push(iterator(e, i));
+      })
+      return arr
+    } else {
+      each(collection, function (value, key) {
+        arr.push(iterator(value, key));
+      })
+      return arr
+    }
+
   };
 
   /*
@@ -96,13 +244,25 @@
   // Takes an array of objects and returns and array of the values of
   // a certain property in it. E.g. take an array of people and return
   // an array of just their ages
-  _.pluck = function(collection, key) {
-    // TIP: map is really handy when you want to transform an array of
-    // values into a new array of values. _.pluck() is solved for you
-    // as an example of this.
-    /* START SOLUTION */
+  _.pluck = function (collection, key) {
 
-    /* END SOLUTION */
+    function each(collection, func) {
+      /* START SOLUTION */
+      if (Array.isArray(collection)) {
+        for (var i = 0; i < collection.length; i++) {
+          func(collection[i], i, collection);
+        }
+      } else {
+        for (var key in collection) {
+          func(collection[key], key, collection);
+        }
+      }
+    }
+    var acc = [];
+    each(collection, function (element, index) {
+      acc.push(element[key]);
+    })
+    return acc;
   };
 
   // Reduces an array or object to a single value by repetitively calling
@@ -115,10 +275,30 @@
   // the case where a starting value is not passed, the iterator is not invoked
   // until the second element, with the first element as its second argument.
   //
-  _.reduce = function(collection, iterator, accumulator) {
-    /* START SOLUTION */
+  _.reduce = function (collection, iterator, accumulator) {
+    function each(collection, func) {
+      /* START SOLUTION */
+      if (Array.isArray(collection)) {
+        for (var i = 0; i < collection.length; i++) {
+          func(collection[i], i, collection);
+        }
+      } else {
+        for (var key in collection) {
+          func(collection[key], key, collection);
+        }
+      }
+    }
+    if (Array.isArray(collection)) {
+      if (accumulator === undefined) {
+        accumulator = collection[0];
+        collection = collection.slice(1)
+      }
+      each(collection, function (e, i) {
+        accumulator = iterator(accumulator, e)
+      })
+      return accumulator;
+    }
 
-    /* END SOLUTION */
   };
 
 }());
